@@ -16,9 +16,13 @@ data = {
         "I love this place", 
         "Get lost loser", 
         "Fantastic work", 
-        "Shut up!" ],
+        "Shut up!",
+        "get lost",
+        "don't talk to me",
+        "so annoying",
+        "what wrong with you"],
 
-        'label': [0, 1, 0, 1, 0, 1, 0, 1, 0, 1]   # 0 = non-toxic , 1 = toxic
+        'label': [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1,]   # 0 = non-toxic , 1 = toxic
 }  
 
 # create a data frame
