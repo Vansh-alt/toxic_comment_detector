@@ -1,72 +1,102 @@
+# Import required libraries
+
 import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer 
-vectorizer = TfidfVectorizer 
-from sklearn.linear_model import LogisticRegression 
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
+import joblib
 
+# Define dataset
 data = {
     'comment': [
-        "You're awesome!", 
-        "I hate you", 
-        "What a great day!", 
-        "You are so stupid", 
-        "Thank you for your help", 
-        "You're an idiot", 
-        "I love this place", 
-        "Get lost loser", 
-        "Fantastic work", 
-        "Shut up!",
-        "get lost",
-        "don't talk to me",
-        "so annoying",
-        "what wrong with you"],
+        # Toxic (1)
 
-        'label': [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1,]   # 0 = non-toxic , 1 = toxic
-}  
+        "i hate you", "go to hell", "you are so stupid", "shut up",
+        "get lost", "you idiot", "you're the worst", "disgusting behavior",
+        "what a moron", "stop being dumb", "nobody likes you", "you're trash",
+        "just die", "kill yourself", "pathetic loser", "ugly face",
+        "you are useless", "worst human ever", "you make me sick", "go away",
+        "you're pathetic", "ugly", "such a cheap person", "so chringe", "you're dirty",
+        "dirty minded",
 
-# create a data frame
+        # Non-Toxic (0)
+
+        "you are amazing", "thank you", "have a great day", "you are welcome",
+        "such a nice person", "stay strong", "keep going", "you can do it",
+        "i appreciate you", "wonderful work", "i believe in you", "you're great",
+        "nice job", "stay positive", "much love",
+        "so proud of you", "how are you", "good luck",
+        "all the best", "happy birthday", "congratulations", "you're beautiful",
+        "what a lovely smile", "you're awesome", "i love your attitude", "well done",
+       
+    ],
+    'label': [
+        1, 1, 1, 1,
+        1, 1, 1, 1,
+        1, 1, 1, 1,
+        1, 1, 1, 1,
+        1, 1, 1, 1,
+        1, 1, 1, 1,
+        1, 1,
+
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0,
+        
+    ]
+}
+
+# Create DataFrame
+
 df = pd.DataFrame(data)
-print(df['label'].value_counts()) 
 
+# Split data into train and test
 
-# split data
-X_train, X_test, y_train, y_test = train_test_split(df['comment'],  df['label'], test_size=0.3, random_state=42) 
+X_train, X_test, y_train, y_test = train_test_split(df['comment'], 
+df['label'], test_size=0.3, random_state=42)
 
-# vectorize text
+# Vectorize text using TF-IDF
 
 vectorizer = TfidfVectorizer()
-x_train_vec = vectorizer.fit_transform(X_train)
+X_train_vec = vectorizer.fit_transform(X_train)
 X_test_vec = vectorizer.transform(X_test)
 
+# Train model
 
-# train model
+model = LogisticRegression(class_weight='balanced')
+model.fit(X_train_vec, y_train)
+import joblib
 
-model= LogisticRegression()
-model.fit(x_train_vec, y_train) 
+joblib.dump(model, "model.pkl")
+joblib.dump(vectorizer, "vectorizer.pkl")
 
-# predict and evaluate
+# Evaluate model
 
 y_pred = model.predict(X_test_vec)
-print("classification report: \n", classification_report(y_test, y_pred))
-print("model accuracy:",model.score(X_test_vec, y_test)) 
+print("Classification report:\n", classification_report(y_test, y_pred))
+print("Model accuracy:", model.score(X_test_vec, y_test))
 
-# function to predict custom input
+# Save model and vectorizer
 
-def predict_comment(text): 
-    vec = vectorizer.transform([text]) 
-    result = model.predict(vec) [0]
+joblib.dump(model, "toxic_model.pkl")
+joblib.dump(vectorizer, "vectorizer.pkl")
+
+# Predict function
+
+def predict_comment(text):
+    vec = vectorizer.transform([text])
+    result = model.predict(vec)[0]
     return "toxic" if result == 1 else "non-toxic"
 
-# try it out
+# Interactive testing
 
 while True:
-    comment = input("enter a comment(or 'exit' to quit): ")
-    if comment.lower() == 'exit' : 
+    comment = input("Enter a comment (or 'exit' to quit): ")
+    if comment.lower() == 'exit':
         break
-    print("prediction:", predict_comment(comment)) 
-
-
-
-
-
+    print("Prediction:", predict_comment(comment))
