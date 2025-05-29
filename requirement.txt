@@ -1,5 +1,6 @@
 streamlit
-scikit-learn
+sklearn
 joblib
 pandas
 numpy
+tfidfVectorizer
